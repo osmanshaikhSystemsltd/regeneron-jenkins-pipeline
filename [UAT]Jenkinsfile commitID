@@ -1,0 +1,47 @@
+pipeline{
+    agent any
+    parameters {
+        booleanParam(name: 'rollback', defaultValue: false, description: 'Check if you want to rollback')
+        string(name: 'commitId', defaultValue: '', description: 'Enter the commit ID')
+    }
+    stages{
+        stage('clear workspace'){
+            steps{
+                sh 'rm -rf *'
+            }
+        }
+        stage('Dev Checkout Rollback'){
+            when{
+                expression { params.rollback == true && !(params.commitId.isEmpty())}
+            }
+            steps{
+                dir('dev-directory'){
+                    checkout([$class: 'GitSCM', branches: [[name: params.commitId]], extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'AncestryBuildChooser', ancestorCommitSha1: 'c22a7d5243419f47edd6e51eb2f09e0fab18e9a3']]], userRemoteConfigs: [[credentialsId: 'github-OS', url: 'https://github.com/osmanshaikhSystemsltd/Repo_Reg.git']]])
+                    script {
+                        zip dir: '', glob: '', zipFile: 'backend.zip'
+                        sh 'mv backend.zip ../ '
+                    }
+                }
+            }
+        }
+        stage('Dev Checkout Deploy'){
+            when{
+                expression { params.rollback == false }
+            }
+            steps{
+                dir('dev-directory'){
+                    checkout([$class: 'GitSCM', branches: [[name: '*/uat']], extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'AncestryBuildChooser', ancestorCommitSha1: 'c22a7d5243419f47edd6e51eb2f09e0fab18e9a3']]], userRemoteConfigs: [[credentialsId: 'github-OS', url: 'https://github.com/osmanshaikhSystemsltd/Repo_Reg.git']]])
+                    script {
+                        zip dir: '', glob: '', zipFile: 'backend.zip'
+                        sh 'mv backend.zip ../ '
+                    }
+                }
+            }
+        }
+        stage('Inject using Curl'){
+            steps{
+                sh "echo 'insert curl command here'"
+            }
+        }
+    }
+}

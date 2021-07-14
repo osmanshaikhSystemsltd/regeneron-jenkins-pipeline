@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    parameters {
+      gitParameter branchFilter: 'origin/(.*)', defaultValue: 'uat', name: 'BRANCH', type: 'PT_TAG'
+    }
+    stages {
+        stage('clear workspace'){
+            steps{
+                sh 'rm -rf *'
+            }
+        }
+        stage('Dev Checkout Deploy'){
+            steps{
+                dir('dev-directory'){
+                    checkout([$class: 'GitSCM', branches: [[name: "${params.BRANCH}"]], extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'AncestryBuildChooser', ancestorCommitSha1: 'c22a7d5243419f47edd6e51eb2f09e0fab18e9a3']]], userRemoteConfigs: [[credentialsId: 'github-OS', url: 'https://github.com/osmanshaikhSystemsltd/Repo_Reg.git']]])
+                    script {
+                        zip dir: '', glob: '', zipFile: 'backend.zip'
+                        sh 'mv backend.zip ../ '
+                    }
+                }
+            }
+        }
+        stage('Inject using Curl'){
+            steps{
+                sh "echo 'insert curl command here'"
+            }
+        }
+    }
+}
