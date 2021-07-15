@@ -13,8 +13,9 @@ pipeline{
                     checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'AncestryBuildChooser', ancestorCommitSha1: '']]], userRemoteConfigs: [[credentialsId: 'github-OS', url: 'https://github.com/osmanshaikhSystemsltd/bmi-calculator-nodejs.git']]])
                     nodejs(nodeJSInstallationName: 'nodejs') {
                         sh 'npm install'
+                        // sh './appstudio package'
                     }
-                    sh 'pwd'
+                    // sh 'pwd'
                     sh 'mv * /var/jenkins_home/workspace/Regeneron-Covid19/npmtest/blobs/webapps/'
                 }
             }
