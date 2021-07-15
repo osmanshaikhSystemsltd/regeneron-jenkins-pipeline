@@ -8,6 +8,9 @@ pipeline{
             }
         }
         stage('checkout frontend'){
+            environment {
+                DIR_BLOB = '/var/jenkins_home/workspace/Regeneron-Covid19/npmtest/blobs/webapps/'
+            }
             steps{
                 dir('frontend-directory'){
                     checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'AncestryBuildChooser', ancestorCommitSha1: '']]], userRemoteConfigs: [[credentialsId: 'github-OS', url: 'https://github.com/osmanshaikhSystemsltd/bmi-calculator-nodejs.git']]])
@@ -16,7 +19,8 @@ pipeline{
                         // sh './appstudio package'
                     }
                     // sh 'pwd'
-                    sh 'mv * /var/jenkins_home/workspace/Regeneron-Covid19/npmtest/blobs/webapps/'
+                    sh 'mv * $DIR_BLOB'
+                    sh 'mv *.war $DIR_BLOB'
                 }
             }
         }
