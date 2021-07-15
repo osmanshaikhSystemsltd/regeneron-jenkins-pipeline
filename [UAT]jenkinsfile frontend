@@ -1,0 +1,36 @@
+pipeline{
+    agent any
+    stages{
+        stage('clear workspace'){
+            steps{
+                sh 'rm -rf *'
+                sh 'mkdir -p blobs/webapps'
+            }
+        }
+        stage('checkout frontend'){
+            steps{
+                dir('frontend-directory'){
+                    checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'AncestryBuildChooser', ancestorCommitSha1: '']]], userRemoteConfigs: [[credentialsId: 'github-OS', url: 'https://github.com/osmanshaikhSystemsltd/bmi-calculator-nodejs.git']]])
+                    nodejs(nodeJSInstallationName: 'nodejs') {
+                        sh 'npm install'
+                    }
+                    sh 'pwd'
+                    sh 'mv * /var/jenkins_home/workspace/Regeneron-Covid19/npmtest/blobs/webapps/'
+                }
+            }
+        }
+        stage('checkout backend'){
+            steps{
+                dir('backend-directory'){
+                    checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'BuildChooserSetting', buildChooser: [$class: 'AncestryBuildChooser', ancestorCommitSha1: '']]], userRemoteConfigs: [[credentialsId: 'github-OS', url: 'https://github.com/osmanshaikhSystemsltd/django-redis.git']]])
+                }
+            }
+        }
+        stage('move blob to backend directory'){
+            steps{
+                sh 'echo hello'
+                //sh 'mv frontend-directory/blob backend-directory'
+            }
+        }
+    }
+}
