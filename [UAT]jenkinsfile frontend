@@ -20,7 +20,7 @@ pipeline{
                     }
                     // sh 'pwd'
                     sh 'mv * $DIR_BLOB'
-                    sh 'mv *.war $DIR_BLOB'
+                    // sh 'mv *.war $DIR_BLOB'
                 }
             }
         }
